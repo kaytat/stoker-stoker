@@ -1,0 +1,237 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML><HEAD>
+
+<!-- STOKER_BREAK 0 -->
+<style type="text/css">
+.ser_num { display: none }
+</style>
+<!-- STOKER_CONTINUE -->
+
+<style type="text/css">
+.alarming { background-color: red }
+</style>
+<script type="text/javascript">
+<!--
+function refreshPeriodic() {
+   location.reload(true);
+}
+// Reload the page every 10 minutes
+timerID = setTimeout("refreshPeriodic()", 10 * 60 * 1000);
+
+var temp_los = new Array();
+var temp_his = new Array();
+var ofs_sw;
+var ofs_sr;
+var ofs_chk;
+
+function do_disable(row, force) {
+    var ofs = ofs_sr + row * 6;
+    var ofs3 = document.forms[0].elements[ofs + 3];
+    var ofs4 = document.forms[0].elements[ofs + 4];
+
+    // For each sensor, there are 6 input elements, so the base index
+    // for the elements for this row is row * 6.
+    // The alarm selection is element 1 of the row.
+    if (document.forms[0].elements[ofs + 2].selectedIndex != 2) {
+        if (sel[row * 2] == 2 || force == 1) {
+            // Switch from fire to not fire option.  Store.
+            temp_los[row] = ofs3.value;
+            temp_his[row] = ofs4.value;
+        }
+        ofs3.value = "n/a";
+        ofs4.value = "n/a";
+    }
+    else if (force == 0) {
+        ofs3.value = temp_los[row];
+        ofs4.value = temp_his[row];
+    }
+
+    // Finally store the selection
+    sel[row * 2] = document.forms[0].elements[ofs + 2].selectedIndex;
+}
+
+function set_sw(row) {
+    var i;
+    var ofs = ofs_sr + row * 6;
+    var sel_var = document.forms[0].elements[ofs + 5];
+
+    // Use the sw_id table to get the ID and the user-friendly name
+    sel_var.options[0] = new Option("None", "None", false);
+    for (i = 0; i < sw_id.length; i += 2) {
+        sel_var.options[i/2+1]=new Option(sw_id[i+1], sw_id[i], false);
+    }
+
+    // Set the option
+    if (sel[row * 2 + 1] == "") {
+        sel_var.selectedIndex = 0;
+        return;
+    }
+    for (i = 0; i < sw_id.length; i += 2) {
+        if (sel[row * 2 + 1] == sw_id[i]) {
+            sel_var.selectedIndex = i/2 + 1;
+            return;
+        }
+    }
+}
+
+function do_presel(sr_rows, sw_rows) {
+    // For each sensor, there are 6 input elements, so the base index
+    // for the elements for this row is row * 6.
+    // The alarm selection is element 2 of the row.
+    var i;
+    var sel_var;
+
+    ofs_sr = sw_rows;
+    ofs_sw = 0;
+    ofs_chk = sw_rows + sr_rows * 6;
+
+    for (i = 0; i < sr_rows; i++) {
+        sel_var = document.forms[0].elements[ofs_sr + i * 6 + 2];
+        sel_var.options[0] = new Option("None", "0", false);
+        sel_var.options[1] = new Option("Food", "1", false);
+        sel_var.options[2] = new Option("Fire", "2", false);
+        sel_var.selectedIndex = sel[i * 2];
+
+        do_disable(i, 1);
+
+        set_sw(i);
+    }
+
+    document.forms[0].elements[ofs_chk].checked = check;
+}
+
+//-->
+</script>
+<TITLE>Stoker Status</TITLE>
+<META HTTP-EQUIV="Expires" CONTENT="-1">
+<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<META HTTP-EQUIV="Cache-control" CONTENT="no-cache">
+<META HTTP-EQUIV="Cache" CONTENT="no-cache">
+</HEAD>
+
+<!-- STOKER_BREAK 1 -->
+<BODY onload="do_presel(1, 1)">
+<!-- STOKER_CONTINUE -->
+
+<form METHOD="POST" ENCTYPE="application/x-www-form-urlencoded" ACTION="stoker.Post_Handler" AUTOCOMPLETE="off">
+<table>
+<tr>
+<td>
+<p>
+<font size="+2"><b>Stoker Status</b></font><br>
+Powered by <a href="http://www.rocksbarbque.com">Rock's Bar-B-Que</a><br>
+Software by kaytat, Version
+
+<!-- STOKER_BREAK 2 -->
+// INSERT_VERSION
+<!-- STOKER_CONTINUE -->
+
+</p>
+<script type="text/javascript">
+<!--
+document.write(Date() + "<br><b>Temperatures in F<\/b>");
+//-->
+</script>
+</td>
+<td align="right">
+<table BORDER="2" CELLPADDING="5">
+<tr><td class="ser_num"><b>Blower</b></td>
+<td><b>Available Blowers</b></td></tr>
+
+<!-- STOKER_BREAK 3 -->
+<tr>
+<td class="ser_num">##FAN_NAME</td>
+<td><input size="16" maxLength="32" name="n2##FAN_NAME" value="##CUSTOM_NAME"></td>
+</tr>
+<!-- STOKER_CONTINUE -->
+
+</table>
+</td>
+</tr>
+<tr>
+<td colspan="2">
+<table BORDER="2" CELLPADDING="5">
+<tr>
+<td class="ser_num"><b>Temp Sensor</b></td>
+<td><b>Description</b></td>
+<td><b>Temp</b></td>
+<td><b>Target</b></td>
+<td><b>Alarm</b></td>
+<td><b>Low Set</b></td>
+<td><b>High Set</b></td>
+<td><b>Blower</b></td>
+</tr>
+
+<!-- STOKER_BREAK 4 -->
+<tr>
+<td colspan="7"><b>##ALARM_TYPE_STRING</b></td>
+</tr>
+<tr>
+<td class="ser_num">##SENSOR_NAME</td>
+<td><input size="16" maxLength="32" name="n1##SENSOR_NAME" value="##CUSTOM_NAME"></td>
+<td>##CUR_TEMP</td>
+<td><input size="6" maxLength="6" name="ta##SENSOR_NAME" value="##CUR_TAR"></td>
+<td>
+    <select name="al##SENSOR_NAME" onchange="do_disable(0, 0)">
+    </select>
+</td>
+<td><input size="6" maxLength="6" name="tl##SENSOR_NAME" value="##CUR_AL_LO"></td>
+<td><input size="6" maxLength="6" name="th##SENSOR_NAME" value="##CUR_AL_HI"></td>
+<td>
+    <select name="sw##SENSOR_NAME">
+    </select>
+</td>
+</tr>
+<!-- STOKER_CONTINUE -->
+
+<tr>
+<td class="ser_num"><b>Temp Sensor</b></td>
+<td><b>Description</b></td>
+<td><b>Temp</b></td>
+<td><b>Target</b></td>
+<td><b>Alarm</b></td>
+<td><b>Low Set</b></td>
+<td><b>High Set</b></td>
+<td><b>Blower</b></td>
+</tr>
+</table>
+</td>
+</tr>
+<tr>
+<td colspan="2">
+<br>
+<input type="checkbox" name="qq">Show serial numbers<br>
+<INPUT TYPE="submit" VALUE="Save Changes">
+</td>
+</tr>
+</table>
+</form>
+<br>
+<form METHOD="POST" ENCTYPE="application/x-www-form-urlencoded" ACTION="stoker.Post_Handler">
+<!-- STOKER_BREAK 5 -->
+<input TYPE="submit" VALUE="Stop Alarms">
+<embed hidden="true" autostart="true" loop="true" type="audio/mpeg" src="x.mp3">
+<!-- STOKER_CONTINUE -->
+</form>
+<!-- STOKER_BREAK 6 -->
+<script type="text/javascript">
+<!--
+var sel =
+[
+    1, "##FAN1_ID",
+    0, "",
+    2, "",
+];
+var sw_id =
+[
+    "##FAN0_ID", "CUSTOM0",
+    "##FAN1_ID", "CUSTOM1",
+    "##FAN2_ID", "CUSTOM2"
+];
+
+var check = true;
+//-->
+</script>
+<!-- STOKER_CONTINUE -->
+</BODY>
+</HTML>
